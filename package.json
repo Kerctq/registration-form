@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "serve": "^11.3.2",
+    "vuelidate": "^0.7.6"
+  },
+  "name": "registration-form",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kerctq/registration-form.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kerctq/registration-form/issues"
+  },
+  "homepage": "https://github.com/Kerctq/registration-form#readme",
+  "description": "",
+  "rules": { 
+    "no-unused-vars": "off" 
+}
+}

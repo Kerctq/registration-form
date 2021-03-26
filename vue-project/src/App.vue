@@ -4,25 +4,65 @@
         <div class="col-sm-4 mx-auto">
           <form @submit.prevent="registerUser" novalidate>
 
+              <!-- <pre>{{$v.formReg.name}}</pre> -->
+
             <div v-show="step === 1" class="step">
 
               <div class="mb-3">
                 <label for="name" class="form-label">Your Name</label>
-                <input v-model="formReg.name" type="text" class="form-control" id="name">
+                <input @blur="$v.formReg.name.$touch()" 
+                       v-model="formReg.name" 
+                       type="text" 
+                       class="form-control" 
+                       id="name"
+                       :class="{'is-invalid reqIn': $v.formReg.name.$error}">
+
+                  <!-- Классы можно перечислять :class="{'is-invalid reqIn': $v.formReg.name.$error, 'reqIn': $v.formReg.name.$error}"> -->
+              
+                 <div v-if="!$v.formReg.name.$required" class="invalid-feedback">
+                    Please provide a valid name.
+                  </div>
+                  <div v-if="!$v.formReg.name.$minLength" class="invalid-feedback">
+                    Length of name is short.
+                  </div>
               </div>
 
               <div class="mb-3">
                 <label for="secondname" class="form-label">Your Second Name</label>
-                <input v-model="formReg.secondname" type="text" class="form-control" id="secondname">
+                <input @blur="$v.formReg.secondname.$touch()"
+                v-model="formReg.secondname" 
+                type="text" 
+                class="form-control" 
+                id="secondname"
+                :class="{'is-invalid reqIn': $v.formReg.secondname.$error}">
+
+                <div v-if="!$v.formReg.secondname.$required" class="invalid-feedback">
+                    Please provide a valid second name.
+                </div>
+              
               </div>
 
               
               <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input v-model="formReg.email" type="text" class="form-control" id="email">
+                <input 
+                       @blur="$v.formReg.email.$touch()"
+                       v-model="formReg.email" 
+                       type="text" 
+                       class="form-control" 
+                       id="email"
+                       :class="{'is-invalid reqIn': $v.formReg.email.$error}">
+              
+              <div v-if="!$v.formReg.email.$required" class="invalid-feedback">
+                    Please provide an  email.
               </div>
 
-             
+              <div v-if="!$v.formReg.email.email" class="invalid-feedback">
+                    Please provide a valid email.
+              </div>
+
+              </div>
+
 
               <button @click="nextStep" type="Button" class="btn btn-primary">Next Step</button>
             
@@ -59,6 +99,7 @@
               <div class="mb-3">
                 <label for="city" class="form-label">City/Town</label>
                 <input v-model="formReg.city" type="text" class="form-control" id="city">
+                
               </div>             
 
               <button type="submit" class="btn btn-primary mr-2">Register</button>
@@ -74,6 +115,10 @@
 </template>
 
 <script>
+
+// eslint-disable-next-line no-unused-vars
+import { required, minLength, between, email } from 'vuelidate/lib/validators'
+
 export default {
   
   data() {
@@ -104,12 +149,32 @@ export default {
     registerUser(){
       console.log("Register completed!")
     }
-  }
+  },
   
+  validations:{
+      formReg:{
+        name:{
+          required,
+          minLength: minLength(3)
+        },
+        secondname:{
+          required,
+          minLength: minLength(3)
+        },
+          email:{
+          required,
+          email
+        }
+      }
+  }
 }
 </script>
  
 <style>
+
+.reqIn{
+  background: rgb(238, 129, 78);
+}
 
 .slide-fade-enter-active {
   transition: all .8s ease;
