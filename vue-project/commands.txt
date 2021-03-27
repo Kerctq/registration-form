@@ -1,3 +1,5 @@
 npm install -g @vue/cli
 
 vue create (Тут можно ввести людое название проекта ->)vue-project
+
+npm install vuelidate

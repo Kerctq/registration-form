@@ -15,16 +15,22 @@
                        type="text" 
                        class="form-control" 
                        id="name"
-                       :class="{'is-invalid reqIn': $v.formReg.name.$error}">
+                       :class="status(this.$v.formReg.name)">
 
                   <!-- Классы можно перечислять :class="{'is-invalid reqIn': $v.formReg.name.$error, 'reqIn': $v.formReg.name.$error}"> -->
               
-                 <div v-if="!$v.formReg.name.$required" class="invalid-feedback">
+                  <div v-if="!$v.formReg.name.$required" class="invalid-feedback">
                     Please provide a valid name.
                   </div>
+
                   <div v-if="!$v.formReg.name.$minLength" class="invalid-feedback">
                     Length of name is short.
                   </div>
+
+                  <div v-if="!$v.formReg.name.alpha" class="invalid-feedback">
+                    {{msgNotNum}}
+                  </div>
+
               </div>
 
               <div class="mb-3">
@@ -34,11 +40,15 @@
                 type="text" 
                 class="form-control" 
                 id="secondname"
-                :class="{'is-invalid reqIn': $v.formReg.secondname.$error}">
+                :class="status(this.$v.formReg.secondname)">
 
                 <div v-if="!$v.formReg.secondname.$required" class="invalid-feedback">
                     Please provide a valid second name.
                 </div>
+
+                    <div v-if="!$v.formReg.secondname.alpha" class="invalid-feedback">
+                    {{msgNotNum}}
+                  </div>
               
               </div>
 
@@ -51,20 +61,20 @@
                        type="text" 
                        class="form-control" 
                        id="email"
-                       :class="{'is-invalid reqIn': $v.formReg.email.$error}">
+                       :class="status(this.$v.formReg.email)">
               
-              <div v-if="!$v.formReg.email.$required" class="invalid-feedback">
-                    Please provide an  email.
-              </div>
-
-              <div v-if="!$v.formReg.email.email" class="invalid-feedback">
+              <div v-if="!$v.formReg.email.$required && !$v.formReg.email.email" class="invalid-feedback">
                     Please provide a valid email.
               </div>
 
               </div>
 
 
-              <button @click="nextStep" type="Button" class="btn btn-primary">Next Step</button>
+              <button @click="nextStep" 
+                      type="Button" 
+                      class="btn btn-primary"
+                      :disabled="disabledButton1"
+                      >Next Step</button>
             
             </div>
 
@@ -74,13 +84,39 @@
 
                   <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input v-model="formReg.password" type="password" class="form-control" id="password">
+                    <input @blur="$v.formReg.password.$touch()"
+                    v-model="formReg.password" 
+                    type="password" 
+                    class="form-control" 
+                    id="password"
+                    :class="{'is-invalid reqIn': $v.formReg.password.$error}">
+
+                   <div v-if="!$v.formReg.password.required" class="invalid-feedback">
+                    Please provide a valid password.
                   </div>
+
+                  <div v-if="!$v.formReg.password.minLength" class="invalid-feedback">
+                    At least 6 characters.
+                  </div>
+
+                  </div>
+
 
                   <div class="mb-3">
                     <label for="pswdconfirm" class="form-label">Pswd Confirm</label>
-                    <input v-model="formReg.pswdconfirm" type="password" class="form-control" id="pswdconfirm">
-                  </div>             
+                    <input @blur="$v.formReg.pswdconfirm.$touch()"
+                    v-model="formReg.pswdconfirm" 
+                    type="password" class="form-control" 
+                    id="pswdconfirm"
+                    :class="{'is-invalid reqIn': $v.formReg.pswdconfirm.$error}">
+
+                    <div v-if="!$v.formReg.pswdconfirm.sameAs" class="invalid-feedback">
+                    Inputed data has to be same as password
+                  </div>      
+
+                  </div>       
+
+                  
 
                   <button @click="nextStep" type="Button" class="btn btn-primary mr-2">Next Step</button>
                   <button @click="prevStep" type="Button" class="btn btn-light">Prev Step</button>
@@ -117,13 +153,15 @@
 <script>
 
 // eslint-disable-next-line no-unused-vars
-import { required, minLength, between, email } from 'vuelidate/lib/validators'
+import { required, minLength, between, email, helpers, sameAs } from 'vuelidate/lib/validators'
+const alpha = helpers.regex('alpha', /^[a-zA-Zёа-яЁА-Я]*$/)
 
 export default {
   
   data() {
     return{
       step: 1,
+      msgNotNum:"There's should be no numbers in field",
       formReg:{
         name:'',
         secondname:'',
@@ -135,7 +173,19 @@ export default {
       }
       } 
   },
+  computed:{
+    disabledButton1(){
+      return this.$v.formReg.name.$invalid ||
+      this.$v.formReg.secondname.$invalid ||
+      this.$v.formReg.email.$invalid 
+    }
+  },
   methods:{
+    status(validator){
+      return{
+        'is-invalid reqIn': validator.$error
+        }
+    },
     nextStep(){
       if (this.step < 3) {
         this.step++
@@ -147,7 +197,17 @@ export default {
       }
     },
     registerUser(){
-      console.log("Register completed!")
+      console.log(`Register completed!`)
+
+      for (let input in this.formReg){
+        console.log(this.formReg[input])
+      }
+
+      this.step = 1
+      for (let input in this.formReg){
+        this.formReg[input] = ''
+      }
+      this.$v.$reset()
     }
   },
   
@@ -155,15 +215,24 @@ export default {
       formReg:{
         name:{
           required,
-          minLength: minLength(3)
+          minLength: minLength(3),
+          alpha
         },
         secondname:{
           required,
-          minLength: minLength(3)
+          minLength: minLength(3),
+          alpha
         },
           email:{
           required,
           email
+        },
+        password:{
+          required,
+          minLength: minLength(6)
+        },
+        pswdconfirm:{
+          sameAs: sameAs('password')
         }
       }
   }
